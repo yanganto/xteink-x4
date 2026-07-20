@@ -1,0 +1,29 @@
+[package]
+name = "xteink-x4"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "xteink-x4"
+test = false
+bench = false
+
+[dependencies]
+esp-hal = { version = "1.1.0", features = ["esp32c3"] }
+esp-backtrace = { version = "0.14.0", features = [
+    "esp32c3",
+    "panic-handler",
+    "println",
+] }
+esp-println = { version = "0.12.0", features = ["esp32c3", "log"] }
+
+[profile.dev]
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1
+debug = 2
+debug-assertions = false
+incremental = false
+opt-level = "s"
+overflow-checks = false
