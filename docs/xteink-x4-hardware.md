@@ -102,6 +102,25 @@ The Xteink X4 is a pocket-sized open-hardware e-ink reader powered by an ESP32-C
 
 ---
 
+## Board Info
+Chip type:         esp32c3 (revision v0.4)
+Crystal frequency: 40 MHz
+Flash size:        16MB
+Features:          WiFi, BLE
+MAC address:       8c:bf:ea:3a:16:c8
+
+Security Information:
+=====================
+Flags: 0x00000000 (0)
+Key Purposes: [0, 0, 0, 0, 0, 0, 12]
+Chip ID: 5
+API Version: 3
+Secure Boot: Disabled
+Flash Encryption: Disabled
+SPI Boot Crypt Count (SPI_BOOT_CRYPT_CNT): 0x0
+
+---
+
 ## Sources
 
 - [Xteink X4 product page](https://www.xteink.com/products/xteink-x4)
