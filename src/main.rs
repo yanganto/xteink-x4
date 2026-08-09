@@ -2,6 +2,7 @@
 #![no_main]
 
 use esp_backtrace as _;
+esp_bootloader_esp_idf::esp_app_desc!();
 use esp_hal::{
     clock::CpuClock,
     main,
