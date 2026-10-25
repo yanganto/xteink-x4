@@ -8,41 +8,46 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
+    parachutes = {
+      url = "github:yanganto/parachutes";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils }:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, parachutes }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ rust-overlay.overlays.default ];
+          overlays = [
+            rust-overlay.overlays.default
+            parachutes.overlays.myMkShell
+          ];
         };
         # Reads channel and targets directly from rust-toolchain.toml
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       in
       let
-        buildScript = pkgs.writeShellScriptBin "build" ''
-          cargo build --release
-        '';
-        deployScript = pkgs.writeShellScriptBin "deploy" ''
-          espflash flash --chip esp32c3 target/riscv32imc-unknown-none-elf/release/xteink-x4
-        '';
-        deployAndMonitorScript = pkgs.writeShellScriptBin "deploy_and_monitor" ''
-          espflash flash --chip esp32c3 --monitor target/riscv32imc-unknown-none-elf/release/xteink-x4
-        '';
+        buildScript = pkgs.writeShellScriptBin "build"
+          (builtins.readFile ./nix/scripts/build.sh);
+        deployScript = pkgs.writeShellScriptBin "deploy"
+          (builtins.readFile ./nix/scripts/deploy.sh);
       in
       {
-        devShells.default = pkgs.mkShell {
+        devShells.default = pkgs.myMkShell {
+          name = "default";
           nativeBuildInputs = [
             toolchain
             pkgs.espflash
             pkgs.pkg-config
             pkgs.tio
-            buildScript
-            deployScript
-            deployAndMonitorScript
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             pkgs.udev
+          ];
+
+          myScripts = [
+            buildScript
+            deployScript
           ];
         };
       });
