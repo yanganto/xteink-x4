@@ -126,6 +126,64 @@ fn main() -> ! {
         }
         count = count.wrapping_add(1);
 
+        // Update time every 10 seconds using the existing count variable
+        if count % 10 == 0 {
+            // Show time on display - very simple approach using integer conversion directly
+            display.clear(BinaryColor::Off).unwrap();
+            
+            let hours = (count / 3600) % 24;
+            let minutes = (count / 60) % 60;
+            let seconds = count % 60;
+            
+            // Directly create buffer and convert numbers to ASCII - simpler but less optimal approach
+            let mut buffer = [b' '; 9]; // Preallocate 8 chars + null terminator
+                                        //
+            // Show only the raw numbers to simplify string handling for embedded environment
+            // Format manually using character manipulation that should work with embedded constraints
+            let time_str = {
+                let h = hours;
+                let m = minutes;
+                let s = seconds;
+                
+                // Simple manual conversion for hours (assuming single digit for now)
+                if h < 10 {
+                    buffer[0] = b'0';
+                    buffer[1] = b'0' + h as u8;
+                } else {
+                    buffer[0] = b'0' + (h / 10) as u8;
+                    buffer[1] = b'0' + (h % 10) as u8;
+                }
+                
+                buffer[2] = b':';
+                
+                if m < 10 {
+                    buffer[3] = b'0';
+                    buffer[4] = b'0' + m as u8;
+                } else {
+                    buffer[3] = b'0' + (m / 10) as u8;
+                    buffer[4] = b'0' + (m % 10) as u8;
+                }
+                
+                buffer[5] = b':';
+                
+                if s < 10 {
+                    buffer[6] = b'0';
+                    buffer[7] = b'0' + s as u8;
+                } else {
+                    buffer[6] = b'0' + (s / 10) as u8;
+                    buffer[7] = b'0' + (s % 10) as u8;
+                }
+                
+                // Convert to string slice - this is much simpler and should avoid the lifetime issues
+                core::str::from_utf8(&buffer[..8]).unwrap_or("00:00:00")
+            };
+            
+            Text::new(&time_str, Point::new(350, 240), text_style)
+                .draw(&mut display)
+                .unwrap();
+            display.update(DisplayUpdateMode::Slow).unwrap();
+        }
+
         let tick_start = Instant::now();
         while tick_start.elapsed() < Duration::from_millis(1000) {}
     }
